@@ -35,6 +35,10 @@ class NotificationGuru:
 
     def build_menu(self):
         menu = gtk.Menu()
+        for message in self.messages:
+            strMessage = '\n' + message[3] + ' | ' + message[0] + '\n' + message[4] + '\n'
+            item = gtk.MenuItem(strMessage)
+            menu.append(item)
         item_quit = gtk.MenuItem('Quit')
         item_quit.connect('activate', self.quit)
         menu.append(item_quit)
@@ -46,12 +50,17 @@ class NotificationGuru:
         gtk.main_quit()
 
     def modifyAllMenuItems(self):
-        # print(indicator.get_menu())
+        self.indicator.set_menu(self.build_menu())
         pass
 
     def notifications(self, bus, message):
-        self.messages.append(message)
-        self.modifyAllMenuItems()
+        if (len(message.get_args_list()) > 1):
+            msg = list(message.get_args_list())
+            if (INITIAL_FILTERS.__contains__(msg[0])):
+                pass
+            else:
+                self.messages.append(msg)
+                self.modifyAllMenuItems()
         print([arg for arg in message.get_args_list()])
 
 
