@@ -15,12 +15,12 @@ INITIAL_FILTERS = ['gnome-settings-daemon']
 
 class NotificationGuru:
     def __init__(self):
-        self.messages = []
+        self.messages = list()
         self.indicator = appindicator.Indicator.new(APP_INDICATOR_ID,
                                                     os.path.abspath('ic_alarm_add_white_24dp.png'),
                                                     appindicator.IndicatorCategory.APPLICATION_STATUS)
         self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
-        self.indicator.set_menu(self.build_menu())
+        self.refresh_menu()
 
         DBusGMainLoop(set_as_default=True)
 
@@ -33,11 +33,18 @@ class NotificationGuru:
 
         pass
 
+    def refresh_menu(self):
+        self.indicator.set_menu(self.build_menu())
+
     def build_menu(self):
         menu = gtk.Menu()
+        i = 0
         for message in self.messages:
-            strMessage = '\n' + message[3] + ' | ' + message[0] + '\n' + message[4] + '\n'
+            i += 1
+            strMessage = '' + message[3] + ' | ' + message[0] + ' | ' + message[4] + ''
             item = gtk.MenuItem(strMessage)
+            item.set_use_underline(True)
+            item.connect('activate', menuItemHandler, i-1, self)
             menu.append(item)
         item_quit = gtk.MenuItem('Quit')
         item_quit.connect('activate', self.quit)
@@ -54,9 +61,9 @@ class NotificationGuru:
         pass
 
     def notifications(self, bus, message):
-        if (len(message.get_args_list()) > 1):
+        if len(message.get_args_list()) > 1:
             msg = list(message.get_args_list())
-            if (INITIAL_FILTERS.__contains__(msg[0])):
+            if INITIAL_FILTERS.__contains__(msg[0]):
                 pass
             else:
                 self.messages.append(msg)
@@ -64,9 +71,13 @@ class NotificationGuru:
         print([arg for arg in message.get_args_list()])
 
 
+def menuItemHandler(source, id, guru):
+    del guru.messages[id]
+    guru.refresh_menu()
+
+
 def main():
     NotificationGuru()
-    pass
 
 
 if __name__ == "__main__":
