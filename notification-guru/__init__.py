@@ -17,7 +17,7 @@ class NotificationGuru:
     def __init__(self):
         self.messages = list()
         self.indicator = appindicator.Indicator.new(APP_INDICATOR_ID,
-                                                    os.path.abspath('ic_alarm_add_white_24dp.png'),
+                                                    os.path.abspath('ic_notifications_active_white_24dp.png'),
                                                     appindicator.IndicatorCategory.APPLICATION_STATUS)
         self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.refresh_menu()
